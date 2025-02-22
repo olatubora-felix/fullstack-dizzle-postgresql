@@ -5,11 +5,11 @@ import React, { Suspense } from "react";
 const UserLists = ({ users }: Props) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <section className="flex-1 space-y-4">
+      <section className="flex-1 space-y-4 lg:h-auto  overflow-y-auto h-[500px]">
         {users?.map((user) => (
           <div
             key={user.id}
-            className="bg-white p-4 rounded-md shadow-md space-y-2 flex items-center justify-between"
+            className="bg-white p-4 rounded-md shadow-md space-y-2 flex items-center justify-between "
           >
             <div>
               <p className="text-lg font-bold text-black">{user.name}</p>

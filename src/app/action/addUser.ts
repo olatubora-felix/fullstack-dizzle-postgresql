@@ -2,25 +2,40 @@
 
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-import { v4 as uuidv4 } from "uuid";
-export const addUser = async (formData: FormData) => {
+import { redirect } from "next/navigation";
+export const addUser = async (
+  prevState: { success: boolean; message: string } | null | undefined,
+  formData: FormData
+) => {
+  const user = await auth();
+  if (!user.userId) return redirect("/si");
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   if (!name || !email || !password) {
-    return;
+    return {
+      success: false,
+      message: "Fields cannot be empty",
+    };
   }
 
-  const data = await db.insert(users).values({
-    name,
-    email,
-    password,
-    id: uuidv4(),
-  });
+  const data = await db
+    .insert(users)
+    .values({
+      name,
+      email,
+      password,
+      user_id: user.userId,
+    })
+    .returning();
 
   if (!data) {
-    return;
+    return {
+      success: false,
+      message: "Failed to add user",
+    };
   }
   revalidatePath("/");
 };
